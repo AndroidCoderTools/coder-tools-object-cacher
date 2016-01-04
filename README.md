@@ -10,3 +10,11 @@ Or
 ```java
     LocalCache = new LocalCache(cachePath);
 ```
+
+And save and get:
+
+```java
+    String key = System.currentTimeMillis()+"1";
+    localCache.putAndSave(this, key, "String:" + System.currentTimeMillis());
+    String vS = (String)localCache.getInner(context,key);
+```
