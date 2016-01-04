@@ -24,6 +24,18 @@ public class LocalCache extends BaseCache {
     protected static final String TYPE_FLOAT = "float";
     protected static final String TYPE_SHORT = "short";
 
+    public LocalCache(){
+        super();
+    }
+
+    /**
+     * initialize cache with cache path
+     * @param cachePath
+     */
+    public LocalCache(String cachePath){
+        super(cachePath);
+    }
+
     /**
      * 缓存
      *

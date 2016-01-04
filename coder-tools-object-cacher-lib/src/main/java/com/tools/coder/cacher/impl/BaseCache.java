@@ -1,6 +1,7 @@
 package com.tools.coder.cacher.impl;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import com.tools.coder.cacher.Cache;
 
@@ -20,8 +21,15 @@ public abstract class BaseCache {
      */
     private DiskCache mDiskCache;
 
+    private String mDiskCachePath;
+
     public BaseCache() {
         mCache = new MemoryCache();
+    }
+
+    public BaseCache(String cachePath) {
+        mCache = new MemoryCache();
+        mDiskCachePath = cachePath;
     }
 
     /**
@@ -55,7 +63,12 @@ public abstract class BaseCache {
         synchronized (BaseCache.class) {
             if (mDiskCache == null) {
                 // 目前采用 Store类名作为文件名区分
-                mDiskCache = new DiskCache(context, getClass().getName());
+                if(!TextUtils.isEmpty(mDiskCachePath)){
+                    mDiskCache = new DiskCache(context, mDiskCachePath);
+
+                }else {
+                    mDiskCache = new DiskCache(context, getClass().getName());
+                }
                 mDiskCache.initialize();
             }
         }
