@@ -1,1 +1,1 @@
-include ':app', ':coder-tools-object-cacher-lib'
+include ':coder-tools-object-cacher-lib'
