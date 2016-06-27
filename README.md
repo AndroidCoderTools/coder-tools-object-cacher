@@ -4,7 +4,7 @@ we can load it when we want to use.
 # How to use ?
 gradle config:
 ```gradle
-    compile 'coder.tools.sdk:coder-tools-object-cacher-lib:1.0.5'
+compile 'coder.tools.sdk:coder-tools-object-cacher-lib:2.0.0'
 ```
 
 ```java
@@ -13,7 +13,7 @@ gradle config:
 Or
 
 ```java
-    LocalCache = new LocalCache(cacheRootPath,cacheFileName);
+    LocalCache = new LocalCache(cacheDir);
 ```
 
 And save and get:
