@@ -2,6 +2,11 @@
 We can save Objects or some parameter in memory and local cache, this project meets this issue. And
 we can load it when we want to use. 
 # How to use ?
+gradle config:
+```gradle
+    compile 'coder.tools.sdk:coder-tools-object-cacher-lib:1.0.5'
+```
+
 ```java
     LocalCache = new LocalCache();
 ```
