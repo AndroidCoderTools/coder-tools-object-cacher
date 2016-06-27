@@ -13,7 +13,7 @@ gradle config:
 Or
 
 ```java
-    LocalCache = new LocalCache(cachePath);
+    LocalCache = new LocalCache(cacheRootPath,cacheFileName);
 ```
 
 And save and get:
