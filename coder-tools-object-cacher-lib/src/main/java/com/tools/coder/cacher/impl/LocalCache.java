@@ -9,6 +9,7 @@ import com.tools.coder.cacher.util.ByteUtils;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
+import java.util.List;
 
 /**
  * Cache data in memory and save the encrypt data on disk
@@ -24,16 +25,17 @@ public class LocalCache extends BaseCache {
     protected static final String TYPE_FLOAT = "float";
     protected static final String TYPE_SHORT = "short";
 
-    public LocalCache(){
+    public LocalCache() {
         super();
     }
 
     /**
      * initialize cache with cache path
-     * @param cachePath
+     *
+     * @param category
      */
-    public LocalCache(String cachePath){
-        super(cachePath);
+    public LocalCache(String category) {
+        super(category);
     }
 
     /**
@@ -79,12 +81,11 @@ public class LocalCache extends BaseCache {
      * @param key
      * @return
      */
-    protected long getLong(Context context, String key) {
+    protected long getLong(DiskCache.DEntry entry, String key) {
         Object value = get(key);
         if (value != null) {
             return (long) value;
         }
-        DiskCache.DEntry entry = load(context, key);
         if (entry != null && entry.data != null) {
             value = ByteUtils.getLong(entry.data);
         }
@@ -112,12 +113,11 @@ public class LocalCache extends BaseCache {
      * @param key
      * @return
      */
-    protected short getShort(Context context, String key) {
+    protected short getShort(DiskCache.DEntry entry, String key) {
         Object value = get(key);
         if (value != null) {
             return (short) value;
         }
-        DiskCache.DEntry entry = load(context, key);
         if (entry != null && entry.data != null) {
             value = ByteUtils.getShort(entry.data);
         }
@@ -145,12 +145,11 @@ public class LocalCache extends BaseCache {
      * @param key
      * @return
      */
-    protected char getChar(Context context, String key) {
+    protected char getChar(DiskCache.DEntry entry, String key) {
         Object value = get(key);
         if (value != null) {
             return (char) value;
         }
-        DiskCache.DEntry entry = load(context, key);
         if (entry != null && entry.data != null) {
             value = ByteUtils.getChar(entry.data);
         }
@@ -178,12 +177,11 @@ public class LocalCache extends BaseCache {
      * @param key
      * @return
      */
-    protected double getDouble(Context context, String key) {
+    protected double getDouble(DiskCache.DEntry entry, String key) {
         Object value = get(key);
         if (value != null) {
             return (double) value;
         }
-        DiskCache.DEntry entry = load(context, key);
         if (entry != null && entry.data != null) {
             value = ByteUtils.getDouble(entry.data);
         }
@@ -225,12 +223,11 @@ public class LocalCache extends BaseCache {
      * @param key
      * @return
      */
-    protected int getInteger(Context context, String key) {
+    protected int getInteger(DiskCache.DEntry entry, String key) {
         Object value = get(key);
         if (value != null) {
             return (int) value;
         }
-        DiskCache.DEntry entry = load(context, key);
         if (entry != null && entry.data != null) {
             value = ByteUtils.getInt(entry.data);
         }
@@ -258,12 +255,11 @@ public class LocalCache extends BaseCache {
      * @param key
      * @return
      */
-    protected float getFloat(Context context, String key) {
+    protected float getFloat(DiskCache.DEntry entry, String key) {
         Object value = get(key);
         if (value != null) {
             return (float) value;
         }
-        DiskCache.DEntry entry = load(context, key);
         if (entry != null && entry.data != null) {
             value = ByteUtils.getFloat(entry.data);
         }
@@ -324,12 +320,11 @@ public class LocalCache extends BaseCache {
      * @param key
      * @return
      */
-    protected String getString(Context context, String key) {
+    protected String getString(DiskCache.DEntry entry, String key) {
         Object value = get(key);
         if (value != null) {
             return (String) value;
         }
-        DiskCache.DEntry entry = load(context, key);
         if (entry != null && entry.data != null) {
             value = ByteUtils.getString(entry.data);
         }
@@ -350,60 +345,78 @@ public class LocalCache extends BaseCache {
             return null;
         }
 
-        if (TYPE_CHAR.equals(type)) {
-            return getChar(context, key);
-        }
-
-        if (TYPE_DOUBLE.equals(type)) {
-            return getDouble(context, key);
-        }
-
-        if (TYPE_FLOAT.equals(type)) {
-            return getFloat(context, key);
-        }
-
-        if (TYPE_INT.equals(type)) {
-            return getInteger(context, key);
-        }
-
-        if (TYPE_LONG.equals(type)) {
-            return getLong(context, key);
-        }
-
-        if (TYPE_STRING.equals(type)) {
-            return getString(context, key);
-        }
-
-        if (TYPE_SHORT.equals(type)) {
-            return getShort(context, key);
-        }
-
-        try {
-            Class ss = Class.forName(type);
-            if (Serializable.class.isAssignableFrom(ss)) {
-                return getSerializable(context, key);
+        do {
+            if (TYPE_CHAR.equals(type)) {
+                value = getChar(entry, key);
+                break;
             }
 
-            if (Parcelable.class.isAssignableFrom(ss)) {
-                //create creator;
-                Parcelable.Creator<T> creator;
-                Parcelable parcelable = (Parcelable) ss.newInstance();
-                Field field = ss.getDeclaredField("CREATOR");
-                if (field == null) {
-                    return null;
+            if (TYPE_DOUBLE.equals(type)) {
+                value = getDouble(entry, key);
+                break;
+            }
 
-                } else {
-                    field.setAccessible(true);
-                    creator = (Parcelable.Creator<T>) field.get(ss.newInstance());
+            if (TYPE_FLOAT.equals(type)) {
+                value = getFloat(entry, key);
+                break;
+            }
+
+            if (TYPE_INT.equals(type)) {
+                value = getInteger(entry, key);
+                break;
+            }
+
+            if (TYPE_LONG.equals(type)) {
+                value = getLong(entry, key);
+                break;
+            }
+
+            if (TYPE_STRING.equals(type)) {
+                value = getString(entry, key);
+                break;
+            }
+
+            if (TYPE_SHORT.equals(type)) {
+                value = getShort(entry, key);
+                break;
+            }
+
+            try {
+                Class ss = Class.forName(type);
+                if (Serializable.class.isAssignableFrom(ss)) {
+                    value = getSerializable(context, key);
+                    break;
                 }
 
-                return getParcelable(context, key, creator);
-            }
+                if (Parcelable.class.isAssignableFrom(ss)) {
+                    //create creator;
+                    Parcelable.Creator<T> creator;
+                    Parcelable parcelable = (Parcelable) ss.newInstance();
+                    Field field = ss.getDeclaredField("CREATOR");
+                    if (field == null) {
+                        return null;
 
-        } catch (Exception e) {
-            e.printStackTrace();
+                    } else {
+                        field.setAccessible(true);
+                        creator = (Parcelable.Creator<T>) field.get(ss.newInstance());
+                    }
+
+                    value = getParcelable(context, key, creator);
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } while (false);
+
+        if (value != null) {
+            put(key, value);
         }
 
         return value;
+    }
+
+    public List<String> getKeyList(Context context) {
+        return super.getKeyList(context);
     }
 }

@@ -12,6 +12,7 @@ import com.tools.coder.cacher.Cache;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Created by Spring-Xu
@@ -39,7 +40,7 @@ class DiskCache implements Cache {
                 new SharedPrefsBackedKeyChain(context),
                 new SystemNativeCryptoLibrary());
 
-        mCacheDir = new File(context.getFilesDir().getAbsolutePath(), category);
+        mCacheDir = new File(category);
         if (mCacheDir.exists()) {
             isLazyInit = true;
             mCache = new DiskBasedCache(mCacheDir, DEFAULT_DISK_USAGE_BYTES);
@@ -133,6 +134,11 @@ class DiskCache implements Cache {
         mCache.clear();
     }
 
+    @Override
+    public List<String> getKeyList() {
+        lazyInit();
+        return mCache.getKeyList();
+    }
 
     public static class DEntry extends Entry {
         @Override

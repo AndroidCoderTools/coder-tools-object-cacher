@@ -1,6 +1,7 @@
 package com.tools.coder.cacher;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -52,6 +53,12 @@ public interface Cache {
      * Empties the cache.
      */
     public void clear();
+
+    /**
+     * Getter the list of keys
+     * @return
+     */
+    List<String> getKeyList();
 
     /**
      * Data and metadata for an entry returned by the cache.

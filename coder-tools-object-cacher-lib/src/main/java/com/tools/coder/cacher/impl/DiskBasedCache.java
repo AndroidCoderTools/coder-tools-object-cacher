@@ -15,10 +15,12 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -342,6 +344,11 @@ class DiskBasedCache implements Cache {
 //            VolleyLog.d("Could not delete cache entry for key=%s, filename=%s",
 //                    key, getFilenameForKey(key));
         }
+    }
+
+    @Override
+    public List<String> getKeyList() {
+        return new ArrayList<String>(mEntries.keySet());
     }
 
     /**

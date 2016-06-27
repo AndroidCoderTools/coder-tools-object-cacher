@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import com.tools.coder.cacher.Cache;
 
+import java.util.List;
+
 /**
  * Created by Spring-Xu on 15/8/3.
  *
@@ -21,15 +23,15 @@ public abstract class BaseCache {
      */
     private DiskCache mDiskCache;
 
-    private String mDiskCachePath;
+    private String mDiskDir;
 
     public BaseCache() {
         mCache = new MemoryCache();
     }
 
-    public BaseCache(String cachePath) {
+    public BaseCache(String mDiskDir) {
         mCache = new MemoryCache();
-        mDiskCachePath = cachePath;
+        this.mDiskDir = mDiskDir;
     }
 
     /**
@@ -63,11 +65,11 @@ public abstract class BaseCache {
         synchronized (BaseCache.class) {
             if (mDiskCache == null) {
                 // 目前采用 Store类名作为文件名区分
-                if(!TextUtils.isEmpty(mDiskCachePath)){
-                    mDiskCache = new DiskCache(context, mDiskCachePath);
+                if (!TextUtils.isEmpty(mDiskDir)) {
+                    mDiskCache = new DiskCache(context, mDiskDir);
 
-                }else {
-                    mDiskCache = new DiskCache(context, getClass().getName());
+                } else {
+                    mDiskCache = new DiskCache(context, context.getFilesDir().getAbsolutePath());
                 }
                 mDiskCache.initialize();
             }
@@ -110,6 +112,7 @@ public abstract class BaseCache {
             dentry.responseHeaders = entry.responseHeaders;
             dentry.ttl = entry.ttl;
         }
+
         return dentry;
     }
 
@@ -156,7 +159,7 @@ public abstract class BaseCache {
 
     /**
      * 获取缓存项
-     * <p>
+     * <p/>
      * 在获取缓存项建议对缓存是否过期进行判断{@link #isExpired(String)}
      *
      * @param key
@@ -166,11 +169,16 @@ public abstract class BaseCache {
         return mCache.get(key);
     }
 
-        /**
-         * 清除
-         *
-         * @param key
-         */
+    protected List<String> getKeyList(Context context) {
+        initDiskCacheLazy(context);
+        return mDiskCache.getKeyList();
+    }
+
+    /**
+     * 清除
+     *
+     * @param key
+     */
     public void clearAll(String key) {
         remove(key);
         wipe(key);

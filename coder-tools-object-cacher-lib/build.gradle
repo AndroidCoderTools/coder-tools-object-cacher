@@ -1,11 +1,33 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+buildscript {
+    System.properties['com.android.build.gradle.overrideVersionCheck'] = 'true'
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.1.0'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+    }
+}
 
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
     defaultConfig {
-        minSdkVersion 15
+        minSdkVersion 9
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -26,22 +48,92 @@ dependencies {
     compile 'com.android.support:support-v4:23.1.1'
 }
 
-apply plugin: 'maven'
+def siteUrl = 'http://blog.csdn.net/cj_star'
+def gitUrl = 'https://github.com/AndroidCoderTools/coder-tools-object-cacher'
+group = "coder.tools.sdk" // Maven Group ID for the artifact
+// This is the library version used when deploying the artifact
+version = "2.0.0"
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.project {
-                groupId project.GROUP_ID
-                artifactId project.ARTIFACT_ID
-                version project.VERSION
-            }
-            repository(url: project.RELEASE_REPOSITORY_URL) {
-                authentication(userName: project.USERNAME, password: project.PASSWORD)
-            }
-            snapshotRepository(url: project.SNAPSHOT_REPOSITORY_URL) {
-                authentication(userName: project.USERNAME, password: project.PASSWORD)
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging 'aar'
+                // Add your description here
+                name 'Android object cacher, store object on SDCard and read.'
+                url siteUrl
+                // Set your license
+                licenses {
+                    license {
+                        name 'The Apache Software License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'hquspring'
+                        name 'SpringXu'
+                        email 'hquspring@gmail.com'
+                    }
+                }
+                scm {
+                    connection gitUrl
+                    developerConnection gitUrl
+                    url siteUrl
+                }
             }
         }
     }
 }
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+//    archives javadocJar
+    archives sourcesJar
+}
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "ObjectCacher"
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        licenses = ["Apache-2.0"]
+        publish = true
+    }
+}
+
+//apply plugin: 'maven'
+
+//uploadArchives {
+//    repositories {
+//        mavenDeployer {
+//            pom.project {
+//                groupId project.GROUP_ID
+//                artifactId project.ARTIFACT_ID
+//                version project.VERSION
+//            }
+//            repository(url: project.RELEASE_REPOSITORY_URL) {
+//                authentication(userName: project.USERNAME, password: project.PASSWORD)
+//            }
+//            snapshotRepository(url: project.SNAPSHOT_REPOSITORY_URL) {
+//                authentication(userName: project.USERNAME, password: project.PASSWORD)
+//            }
+//        }
+//    }
+//}

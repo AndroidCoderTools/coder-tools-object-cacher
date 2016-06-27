@@ -2,6 +2,9 @@ package com.tools.coder.cacher.impl;
 
 import android.support.v4.util.LruCache;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Cache objects in memory
  *
@@ -67,6 +70,10 @@ class MemoryCache<T> {
     public T get(String key) {
         CacheItem item = getCacheItem(key);
         return item == null ? null : item.getValue();
+    }
+
+    public List<String> getKeyList(){
+        return new ArrayList<String>(mCache.snapshot().keySet());
     }
 
     /**
